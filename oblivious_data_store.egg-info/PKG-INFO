@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: oblivious-data-store
+Version: 0.0.1
+Summary: In-memory Path ORAM demo with Flask API
+Requires-Python: >=3.9

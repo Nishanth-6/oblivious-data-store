@@ -1,9 +1,5 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from backend.oram import SimpleORAM
-oram = SimpleORAM(size=16)  # 16 blocks in ORAM
+from backend.oram_core.path_oram import PathORAM   # NEW
+oram = PathORAM(n_blocks=64)                       # Example: 64 logical blocks
 
 from flask import Flask, request, jsonify
 from cryptography.fernet import Fernet
