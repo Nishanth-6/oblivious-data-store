@@ -33,31 +33,34 @@ class PathORAM:
         return self._access(idx, op="write", new_val=val)
 
     # ---------- core algorithm ----------
-    def _access(self, idx: int, op: str, new_val):
-        leaf = self.pos_map[idx]
+    def _access(self, idx: int, op: str, new_val, override_leaf=None):
+        leaf = override_leaf if override_leaf is not None else self.pos_map[idx]
         self.access_log.append(leaf)
-        self.pos_map[idx] = self._rand_leaf()        # remap before returning
 
-        # 1. Fetch path from root to leaf into stash
+        # Only remap the position map if this ORAM owns the position map directly
+        if override_leaf is None:
+            self.pos_map[idx] = self._rand_leaf()
+
+        # 1. Fetch path into stash
         path = self._path_nodes(leaf)
         for bucket in path:
             self.stash_update_from_bucket(bucket)
 
-        # 2. If write, update stash copy
+        # 2. Read or write in stash
         if op == "write":
             self.stash[idx] = new_val
-        result = self.stash.get(idx)                # could be None for read-miss
+        result = self.stash.get(idx)
 
-        # 3. Evict from stash back into path (leaf->root so deeper nodes fill first)
+        # 3. Evict from stash into tree path (bottom up)
         for bucket in reversed(path):
             while len(self.tree[bucket]) < self.Z:
-                # choose a stash block whose mapped leaf is under this bucket
                 candidate = self._find_stash_block(bucket)
                 if candidate is None:
                     break
                 self.tree[bucket].append((candidate, self.stash.pop(candidate)))
 
         return result
+
 
     # ---------- helpers ----------
     def _path_nodes(self, leaf: int):

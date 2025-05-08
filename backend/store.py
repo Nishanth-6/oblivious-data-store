@@ -1,5 +1,5 @@
-from backend.oram_core.path_oram import PathORAM   # NEW
-oram = PathORAM(n_blocks=64)                       # Example: 64 logical blocks
+from backend.oram_core.recursive_oram import RecursivePathORAM
+oram = RecursivePathORAM(n_blocks=64)
 
 from flask import Flask, request, jsonify
 from cryptography.fernet import Fernet
@@ -34,6 +34,10 @@ def get(key):
 @app.route('/debug/logs', methods=['GET'])
 def debug_logs():
     return jsonify({"access_log": oram.get_access_log()})
+
+@app.route('/debug/stats', methods=['GET'])
+def debug_stats():
+    return jsonify(oram.dump_stats())
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
