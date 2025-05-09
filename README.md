@@ -1,128 +1,92 @@
 # Oblivious Data Store
 
-A minimalist, educational implementation of **Path ORAM (Oblivious RAM)** in Python, exposing secure memory access through a RESTful Flask API.
+A clean, in-memory implementation of Path ORAM in Python with a Flask API for secure key-value storage. Designed for clarity, experimentation, and extensibility.
 
-This project simulates privacy-preserving access patterns for key-value storage, showcasing ORAM principles, recursive position map hiding, and stress-tested stash behavior — all wrapped in a clean Flask server for demonstration and testing.
+## Features
 
----
-
-## 🔧 Features
-
-- 📦 **Path ORAM** core logic (in-memory, randomized access path)
-- 🔁 **Recursive ORAM** to hide position map accesses
-- 💾 **Persistence layer** (`/save`, `/load`) to serialize/restore ORAM state
-- 📶 **RESTful API**: `PUT`, `GET`, `DEBUG`, and future endpoints
+- 📦 **Path ORAM** built from scratch
+- 🔁 **Recursive ORAM** to reduce trusted storage
+- 💾 **Persistence layer** using `/save` and `/load` routes
+- 📶 **Flask API** with `PUT`, `GET`, `DEBUG` endpoints
 - ⚠️ **Stash overflow detection** with dynamic thresholds
-- 🧪 **Stress testing** to simulate load and detect ORAM bottlenecks
-- 📊 *(Coming soon)*: Stash growth visualization and retry-aware eviction
+- 🧪 **Stress testing** with real-time stash monitoring
+- 📊 **(Upcoming)** Stash growth visualization
+- 🔐 Prepared for future enhancements like Merkle tree integrity and multi-client access
 
----
-
-## 📁 Folder Structure
+## Folder Structure
 
 ```
-oblivious-data-store/
-├── backend/
-│   ├── store.py               # Flask API server
-│   ├── oram.py                # Optional entry point
-│   └── oram_core/
-│       ├── path_oram.py       # Core ORAM logic
-│       └── recursive_oram.py  # Recursive ORAM wrapper
-├── client/
-│   └── client.py              # Placeholder test client (optional)
-├── scripts/
-│   ├── setup.sh               # Reserved for setup automation
-│   └── stress_test.py         # Stash overflow simulator
-├── tests/
-│   ├── test_oram.py
-│   ├── test_store.py
-│   └── test_recursive_oram.py
-├── requirements.txt
-├── README.md
-└── .gitignore
+backend/
+├── __init__.py
+├── store.py              # Flask server
+├── oram.py               # Legacy ORAM logic (SimpleORAM)
+└── oram_core/
+    ├── __init__.py
+    ├── path_oram.py      # Main ORAM logic
+    └── recursive_oram.py # Position map ORAM
+client/
+└── client.py             # Simple CLI (optional)
+
+scripts/
+└── stress_test.py        # Stress test runner
+
+tests/
+├── test_oram.py
+├── test_recursive_oram.py
+└── test_store.py
+
+requirements.txt
+README.md
+.gitignore
 ```
 
----
+## API Endpoints
 
-## 🚀 Setup Instructions
+- `POST /put`  
+  Store a key-value pair.  
+  Example: `{"key": 5, "value": "hello"}`
 
-### 1. Set up virtual environment
+- `GET /get/<key>`  
+  Retrieve a value using the logical key.
+
+- `GET /debug/logs`  
+  Returns the access log (leaf IDs accessed).
+
+- `GET /debug/stats`  
+  Returns current stash size and bucket usage for both ORAMs.
+
+- `POST /save`  
+  Save the current ORAM state to disk.
+
+- `POST /load`  
+  Reload the saved ORAM state from disk.
+
+## How to Run
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-### 2. Run Flask Server
-
-```bash
+# Start Flask server
 python3 -m backend.store
-```
 
----
+# Run tests
+pytest -q
 
-## 🧪 Example API Usage
-
-### Store a key-value pair
-```bash
-curl -X POST http://127.0.0.1:5000/put \
-     -H "Content-Type: application/json" \
-     -d '{"key": "5", "value": "hello world"}'
-```
-
-### Retrieve a value
-```bash
-curl http://127.0.0.1:5000/get/5
-```
-
-### Save & Load ORAM state
-```bash
-curl -X POST http://127.0.0.1:5000/save
-curl -X POST http://127.0.0.1:5000/load
-```
-
-### Debug endpoints
-```bash
-curl http://127.0.0.1:5000/debug/logs
-curl http://127.0.0.1:5000/debug/stats
-```
-
----
-
-## 🧪 Stress Testing
-
-```bash
+# Stress test ORAM
 python3 scripts/stress_test.py
 ```
 
-Monitors stash growth under randomized write pressure. You’ll see outputs like:
+## Future Scope
 
-```
-⚠️ WARNING: Stash overflow — current size: 54 (threshold was 36)
-```
+- ✅ Recursive ORAM - Done
+- ✅ Disk-based persistence - Done
+- 🚧 Multi-client thread-safe support
+- 🚧 Merkle tree for data integrity
+- 🚧 Batched writes and read-ahead caching
+- 🚧 Stash growth visualization (/debug/stash_growth)
+- 🚧 Smart eviction strategies and retry logic
 
----
+## Acknowledgments
 
-## ✅ Tests
-
-```bash
-pytest -q
-```
-
-Or run individual tests:
-```bash
-pytest -q tests/test_recursive_oram.py
-```
-
----
-
-## 📚 Future Enhancements
-
-- 🧵 **Thread-safe ORAM** to support concurrent clients
-- 🌲 **Merkle Tree** for data integrity checks
-- 🔄 **Batch reads/writes** with improved eviction heuristics
-- 📊 **Stash growth plots** and `/debug/stash_growth` endpoint
-- 📁 **Export logs/results** as CSV or JSON for reproducibility
+Inspired by the Path ORAM paper (Stefanov et al., 2013)  
+Used for educational and demonstration purposes only.
 
 ---
